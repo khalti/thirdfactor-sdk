@@ -120,21 +120,18 @@ class _TfWebViewState extends State<TfWebView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(),
-      body: Stack(
-        children: [
-          LinearProgressIndicator(
-            value: _progress.toDouble(),
-          ),
-          WebViewWidget(controller: webController),
-          Center(
-            child: _isLoading
-                ? widget.loadingBuilder(context, _progress)
-                : const SizedBox.shrink(),
-          ),
-        ],
-      ),
+    return Stack(
+      children: [
+        LinearProgressIndicator(
+          value: _progress.toDouble(),
+        ),
+        WebViewWidget(controller: webController),
+        Center(
+          child: _isLoading
+              ? widget.loadingBuilder(context, _progress)
+              : const SizedBox.shrink(),
+        ),
+      ],
     );
   }
 }
