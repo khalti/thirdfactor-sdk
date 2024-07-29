@@ -84,7 +84,6 @@ class _TfWebViewState extends State<TfWebView> {
         try {
           final response = TfResponse.fromJson(message.message);
           widget.onCompletion(response);
-          Navigator.of(context).pop();
         } catch (_) {
           throw Exception("Couldn't decode response from Thirdfactor server");
         }
