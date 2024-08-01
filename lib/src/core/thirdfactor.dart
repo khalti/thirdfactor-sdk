@@ -108,7 +108,7 @@ class ThirdFactorScope extends StatefulWidget {
   /// Note: Ensure that the `navigation key` from `ThirdFactorScope` is provided to `MaterialApp` or `CupertinoApp`.
   Future<void> startVerification({
     required String verificationUrl,
-    required ValueChanged<TfResponse> onCompletion,
+    required ValueChanged<Map<String,dynamic>> onCompletion,
     TfOnboardingOptions? onboardingOptions,
     VoidCallback? onCancel,
   }) async {

@@ -1,7 +1,6 @@
-import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:thirdfactor/src/core/thirdfactor.dart';
-import 'package:thirdfactor/src/model/tf_response.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
@@ -10,7 +9,7 @@ import 'package:image_picker/image_picker.dart';
 
 class TfWebView extends StatefulWidget {
   final String verificationUrl;
-  final ValueChanged<TfResponse> onCompletion;
+  final ValueChanged<Map<String, dynamic>> onCompletion;
   final LoadingBuilder loadingBuilder;
 
   const TfWebView({
@@ -70,11 +69,9 @@ class _TfWebViewState extends State<TfWebView> {
           },
         ),
       )
-      ..addJavaScriptChannel("TFSDKCHANNEL",
-          onMessageReceived: (JavaScriptMessage message) {
+      ..addJavaScriptChannel("TFSDKCHANNEL", onMessageReceived: (JavaScriptMessage message) {
         try {
-          final response = TfResponse.fromJson(message.message);
-          widget.onCompletion(response);
+          widget.onCompletion(jsonDecode(message.message));
         } catch (_) {
           throw Exception("Couldn't decode response from Thirdfactor server");
         }
@@ -126,9 +123,7 @@ class _TfWebViewState extends State<TfWebView> {
         ),
         WebViewWidget(controller: webController),
         Center(
-          child: _isLoading
-              ? widget.loadingBuilder(context, _progress)
-              : const SizedBox.shrink(),
+          child: _isLoading ? widget.loadingBuilder(context, _progress) : const SizedBox.shrink(),
         ),
       ],
     );
