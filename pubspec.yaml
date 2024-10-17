@@ -1,6 +1,6 @@
 name: thirdfactor
 description: "Flutter package for ThirdFactor Verification"
-version: 0.0.2
+version: 0.0.3
 publish_to: none
 
 environment:
