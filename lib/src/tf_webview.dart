@@ -69,16 +69,10 @@ class _TfWebViewState extends State<TfWebView> {
           },
         ),
       )
-      ..addJavaScriptChannel("TFSDKCHANNEL", onMessageReceived: (JavaScriptMessage message) {
-        try {
-          widget.onCompletion(jsonDecode(message.message));
-        } catch (_) {
-          throw Exception("Couldn't decode response from Thirdfactor server");
-        }
-      })
-      ..loadRequest(
-        Uri.parse(widget.verificationUrl),
-      );
+      ..addJavaScriptChannel("TFSDKCHANNEL", onMessageReceived: (message) => _onMessageReceived(message))
+      ..loadRequest(Uri.parse(widget.verificationUrl)
+      )
+      ..setBackgroundColor(Colors.white);
 
     if (webController.platform is AndroidWebViewController) {
       AndroidWebViewController androidController = webController.platform as AndroidWebViewController;
@@ -86,6 +80,15 @@ class _TfWebViewState extends State<TfWebView> {
         ..setMediaPlaybackRequiresUserGesture(false)
         ..setOnPlatformPermissionRequest((request) => request.grant())
         ..setOnShowFileSelector(_androidImagePicker);
+    }
+  }
+
+  Future<void> _onMessageReceived(JavaScriptMessage message) async {
+    try {
+      widget.onCompletion(jsonDecode(message.message));
+      await webController.clearCache();
+    } catch (_) {
+      throw Exception("Couldn't decode response from Thirdfactor server");
     }
   }
 
