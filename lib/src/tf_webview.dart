@@ -9,14 +9,18 @@ import 'package:image_picker/image_picker.dart';
 
 class TfWebView extends StatefulWidget {
   final String verificationUrl;
+  final String? interceptUrl;
   final ValueChanged<Map<String, dynamic>> onCompletion;
   final LoadingBuilder loadingBuilder;
+  final ValueSetter? onUrlIntercepted;
 
   const TfWebView({
     Key? key,
     required this.verificationUrl,
     required this.onCompletion,
     required this.loadingBuilder,
+    this.interceptUrl,
+    this.onUrlIntercepted,
   }) : super(key: key);
 
   @override
@@ -67,15 +71,25 @@ class _TfWebViewState extends State<TfWebView> {
           onProgress: (progress) {
             if (mounted) setState(() => _progress = progress);
           },
+          onNavigationRequest: (request) async {
+            if (widget.interceptUrl != null &&
+                widget.onUrlIntercepted != null &&
+                request.url.startsWith(widget.interceptUrl!)) {
+              widget.onUrlIntercepted!(request.url);
+              return NavigationDecision.prevent;
+            }
+            return NavigationDecision.navigate;
+          },
         ),
       )
-      ..addJavaScriptChannel("TFSDKCHANNEL", onMessageReceived: (message) => _onMessageReceived(message))
-      ..loadRequest(Uri.parse(widget.verificationUrl)
-      )
+      ..addJavaScriptChannel("TFSDKCHANNEL",
+          onMessageReceived: (message) => _onMessageReceived(message))
+      ..loadRequest(Uri.parse(widget.verificationUrl))
       ..setBackgroundColor(Colors.white);
 
     if (webController.platform is AndroidWebViewController) {
-      AndroidWebViewController androidController = webController.platform as AndroidWebViewController;
+      AndroidWebViewController androidController =
+          webController.platform as AndroidWebViewController;
       androidController
         ..setMediaPlaybackRequiresUserGesture(false)
         ..setOnPlatformPermissionRequest((request) => request.grant())
@@ -94,7 +108,8 @@ class _TfWebViewState extends State<TfWebView> {
 
   Future<List<String>> _androidImagePicker(FileSelectorParams params) async {
     try {
-      final XFile? image = await _imagePicker.pickImage(source: ImageSource.gallery);
+      final XFile? image =
+          await _imagePicker.pickImage(source: ImageSource.gallery);
       if (image != null) {
         return [Uri.file(image.path).toString()];
       }
@@ -126,7 +141,9 @@ class _TfWebViewState extends State<TfWebView> {
         ),
         WebViewWidget(controller: webController),
         Center(
-          child: _isLoading ? widget.loadingBuilder(context, _progress) : const SizedBox.shrink(),
+          child: _isLoading
+              ? widget.loadingBuilder(context, _progress)
+              : const SizedBox.shrink(),
         ),
       ],
     );
