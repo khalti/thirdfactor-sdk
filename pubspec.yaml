@@ -16,7 +16,7 @@ dependencies:
       path: permission_handler
       ref: main
   webview_flutter: ^4.4.4
-  webview_flutter_android: ^3.14.0
+  webview_flutter_android: ^4.9.1
   webview_flutter_wkwebview: ^3.10.2
   image_picker: ^1.1.2
 
